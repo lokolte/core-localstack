@@ -1,0 +1,4 @@
+#WW Properties
+sec_repository=core-localstack
+sec_owner=core
+sec_critical_system=true
