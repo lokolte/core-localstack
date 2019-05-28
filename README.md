@@ -27,7 +27,7 @@ The image runs the bootstrapping scripts as a health check. This means that the 
 
 ### Runtime overrides
 Two options for overriding this at runtime:
-- To just use a different CloudFormation template mount a Volume over `/var/lib/core-localstack/templates` containing a `cftemplate.yaml` template and all defined here.
+- To just use a different CloudFormation template mount a Volume over `/var/lib/core-localstack/templates` containing a `s3template.yaml` template and all defined here.
 - To directly use `awslocal` on the Cli, replace the `aws --endpoint-url=http://${LSTACK_HOST}:${LSTACK_PORT}` by `awslocal` in `/var/lib/core-localstack/scripts` for the `init.sh` script.
 
 [awslocal](https://github.com/localstack/awscli-local) is installed in DockerFile and used for bootstrapping scripts in `/var/lib/core-localstack/scripts/init.sh`.
