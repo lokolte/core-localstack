@@ -1,0 +1,21 @@
+version: '2.1'
+
+services:
+
+  ######## NGINX ########
+
+  core-localstack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: core-localstack-asdf
+    ports:
+      - "4568-4584:4568-4584"
+      - "8055:8080"
+    environment:
+      - SERVICES=s3
+      - LOCALSTACK_DATA_DIR=/var/lib/localstack/data
+      - LOCALSTACK_DEFAULT_REGION=us-east-1
+      - LOCALSTACK_HOSTNAME=core-localstack-asdf
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
