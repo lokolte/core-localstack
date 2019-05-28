@@ -1,5 +1,4 @@
-ARG  LOCALSTACK_DOCKER_IMAGE_TAG=latest
-FROM localstack/localstack:$LOCALSTACK_DOCKER_IMAGE_TAG
+FROM localstack/localstack:latest
 
 ENV DATADIR /var/lib/core-localstack
 
