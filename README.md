@@ -1,113 +1,81 @@
-# core-localstack
+# Initialised Localstack
+This image extends the functionality of the default image provided by the awesome [localstack](https://github.com/localstack/localstack).
 
-core-localstack layer dependency for anonymization-feeder, ....
+In a nutshell, localstack enables you to run a number of AWS services locally for testing.
 
-Core-localstack Container =  localstack + Aws-Cli
+This image extends that functionality to allow you to start the image fully initialised with your configuration. For example Kinesis Streams, SQS queues, Dynamo Tables, etc.
 
-## Kinesalite
+You can do this by providing either a CloudFormation template or a script running `awslocal` Cli commands.
 
-Container based on: https://github.com/mhart/kinesalite
+## Versions
+The tagged versions pull the corresponding localstack image. For example, 0.7.4 pulls localstack 0.7.4.
 
-## Aws Cli 
+## Running
+`docker-compose up` will start the stack with the services defined by `SERVICES` in the `docker-compose.yml` or `LOCALSTACK_SERVICES` in the `.env` overrides.
 
-Set up config & Credentiales
+## Bootstrapping
+Scripts are copied to `/opt/bootstrap/scripts`.
 
-## Core User Profile Service
+Templates are copied to `/opt/bootstrap/templates`.
 
-Setup your local.conf file
+By default the `init.sh` script creates an AWS stack using the CloudFormation template located in `/opt/bootstrap/templates`.
 
-    kinesis {
-    
-      application-name = "core-profile-service"
-    
-      aws.profile = "ww"
-    
-      profile-producer {
-        kpl {
-          Region = us-east-1
-          MetricsLevel = none
-          KinesisEndpoint = "kinesalite"
-          KinesisPort = 4567
-          VerifyCertificate = false
-          LogLevel = "error"
-        }
-      }
-    
-    }
-  
-    feature.kinesis = true
+Note that the CloudFormation template functionality provided by localstack isn't feature complete, [this](https://github.com/localstack/localstack/tree/master/tests/integration/templates) example `test` templates directory from localstack gives an indication of the currently supported featureset.
 
+## Healthcheck
+The image runs the bootstrapping scripts as a health check. This means that the service isn't considered `healthy` until they complete. This can therefore be used to control startup order within docker compose (see example below). **Do not override the health check!**
 
-## Run docker compose 
+### Runtime overrides
+Two options for overriding this at runtime:
+- To just use a different CloudFormation template mount a Volume over `/opt/bootstrap/templates` containing a `cftemplate.yaml` template.
+- To directly use `awslocal` on the Cli, mount a Volume over `/opt/bootstrap/scripts` containing an `init.sh` script.
 
-    docker-compose -f test/user-profile.yml -f local/user-profile.yml up
+[awslocal](https://github.com/localstack/awscli-local) is installed and used for bootstrapping scripts.
 
-## Connect kinesalite container and create necessary streams
+# docker-compose
+Here's an example compose file for running the container with kinesis, dynamodb, cloudwatch & Cloudformation. Startup order is controlled using `depends_on`.
+This mounts over the `cftemplate.yml` with a template in the same directory as the compose file:
 
-- kinesalite is running in ssl mode, 
-- profile kinesalite use a certificate, see details on config file
+```yaml
+version: "2.3"
 
-```
-    $ docker ps
-        
-    CONTAINER ID        IMAGE                                                         COMMAND                  CREATED             STATUS              PORTS                                                                    NAMES
-    b7667f9433d9        nginx                                                         "nginx -g 'daemon ..."   5 minutes ago       Up 5 minutes        0.0.0.0:9000->80/tcp                                                     test_nginx_1
-    2a4390002d57        quay.io/weightwatchers/core-sbt-docker:1.0.0                  "sbt -jvm-debug 50..."   5 minutes ago       Up 5 minutes        0.0.0.0:5005->5005/tcp, 0.0.0.0:9001->80/tcp                             test_user-profile.core_1
-    e5d09a0ab303        quay.io/fernandotorterolo/core-kinesalite                     "./cmd.sh"               5 minutes ago       Up 5 minutes        0.0.0.0:443->443/tcp, 0.0.0.0:4567->4567/tcp                             test_core-kinesalite_1
-    bc361252227a        cassandra:2.1                                                 "/docker-entrypoin..."   2 days ago          Up 5 minutes        7000-7001/tcp, 7199/tcp, 9160/tcp, 0.0.0.0:9044->9042/tcp                test_cassandra-node3_1
-    4ba9263bf0a8        cassandra:2.1                                                 "/docker-entrypoin..."   2 days ago          Up 5 minutes        7000-7001/tcp, 7199/tcp, 9160/tcp, 0.0.0.0:9043->9042/tcp                test_cassandra-node2_1
-    bf96deebe334        cassandra:2.1                                                 "/docker-entrypoin..."   2 days ago          Up 5 minutes        7000-7001/tcp, 7199/tcp, 9160/tcp, 0.0.0.0:9042->9042/tcp                test_cassandra-node1_1
-    977b72f248dd        quay.io/weightwatchers/core-mock-enterprise-service:develop   "/docker-entrypoin..."   2 days ago          Up 5 minutes        9000/tcp, 9999/tcp, 0.0.0.0:9902->80/tcp                                 test_mule.es_1
-    bed52a5e4ba7        quay.io/weightwatchers/opendj:2.1.0                           "/opt/opendj/run.sh"     2 days ago          Up 5 minutes        0.0.0.0:1389->1389/tcp, 0.0.0.0:1636->1636/tcp, 0.0.0.0:4444->4444/tcp   test_core-ldap-container_1
-    
-    11:01 $ docker exec -it test_core-kinesalite_1 /bin/ash
+services:
+  localstack:
+    image: markglh/initialised-localstack:latest
+    environment:
+      - "SERVICES=${LOCALSTACK_SERVICES:-kinesis,dynamodb,cloudwatch,cloudformation}"
+      - "DEFAULT_REGION=${AWS_REGION:-us-east-1}"
+      - "HOSTNAME=${LOCALSTACK_HOSTNAME:-localhost}"
+      - "HOSTNAME_EXTERNAL=${LOCALSTACK_HOSTNAME_EXTERNAL:-localhost}"
+      - "USE_SSL=true"
+      #- "DATA_DIR=${LOCALSTACK_DATA_DIR:-/tmp/localstack/data}" # uncomment if you want to persist data between runs
+    volumes:
+      - ./templates:/opt/bootstrap/templates
+    ports:
+      - "4567-4582:4567-4582"
+      - "8080:8080"
 
-    test_core-kinesalite_1:$ aws kinesis create-stream --stream-name local.core-profile-service.1.ProfileEvent --shard-count 1 --profile kinesalite --endpoint-url https://kinesalite:4567
-    test_core-kinesalite_1:$ aws kinesis create-stream --stream-name local.core-profile-service.1.ProgramEvent --shard-count 1 --profile kinesalite --endpoint-url https://kinesalite:4567
-    test_core-kinesalite_1:$ aws kinesis create-stream --stream-name local.core-profile-service.1.JournalEvent --shard-count 1 --profile kinesalite --endpoint-url https://kinesalite:4567
-    test_core-kinesalite_1:$ aws kinesis create-stream --stream-name local.core-profile-service.1.ActivityEvent --shard-count 1 --profile kinesalite --endpoint-url https://kinesalite:4567
-    test_core-kinesalite_1:$ aws kinesis create-stream --stream-name local.core-profile-service.1.FoodEvent --shard-count 1 --profile kinesalite --endpoint-url https://kinesalite:4567
-    test_core-kinesalite_1:$ aws kinesis create-stream --stream-name local.core-profile-service.1.QuickAddFoodEvent --shard-count 1 --profile kinesalite --endpoint-url https://kinesalite:4567
-    test_core-kinesalite_1:$ aws kinesis create-stream --stream-name local.core-profile-service.1.WeightEvent --shard-count 1 --profile kinesalite --endpoint-url https://kinesalite:4567
-
+  some-service:
+    image: myorg/some-service
+    depends_on:
+      localstack:
+        condition: service_healthy
 ```
 
-- create stream over http.
+Note that the environment variables supply default values but can be overridden using a `.env` file.
 
-kinesalite should be container ip.
-shard-count default value = 1
+# Example query against the container
+From your host, either install `awslocal` or pass the appropriate endpoint overrides to the aws Cli.
 
+```bash
+aws --endpoint-url=https://localhost:4568 kinesis --profile=personal --no-verify-ssl list-streams                                                   
+
+InsecureRequestWarning: Unverified HTTPS request is being made. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.org/en/latest/security.html
+  InsecureRequestWarning)
+{
+    "StreamNames": [
+        "int-test-stream-1",
+        "int-test-stream-2"
+    ]
+}
 ```
-    $ curl -X PUT http://kinesalite/stream/local.core-profile_test_1
-    $ curl -X PUT http://kinesalite/stream/local.core-profile_test2?shard-count=2
-
-```
-
-### list streams
-
-``` 
-    $ aws kinesis list-streams --profile kinesalite --endpoint-url https://kinesalite:4567
-```
-
-## Validate Core-kinesis (reactive-kinesis) properties
-
-
-    user-profile.core_1    .... [info] [logging.cc:83] Set boost log level to info
-    user-profile.core_1    .... [info] [logging.cc:170] Set AWS Log Level to WARN
-    user-profile.core_1    .... [info] [main.cc:346] Setting CA path to /tmp/amazon-kinesis-producer-native-binaries
-    user-profile.core_1    .... [info] [main.cc:382] Starting up main producer
-    user-profile.core_1    .... [info] [kinesis_producer.cc:87] Using Region: us-east-1
-    user-profile.core_1    .... [info] [kinesis_producer.cc:140] Using Kinesis endpoint kinesalite:4567
-    user-profile.core_1    .... [info] [kinesis_producer.cc:87] Using Region: us-east-1
-    user-profile.core_1    .... [info] [kinesis_producer.cc:48] Using default CloudWatch endpoint
-    user-profile.core_1    .... [info] [main.cc:393] Entering join
-
-## Produce events
-
-
-    user-profile.core_1    | 2017-09-10 14:14:18,837 [trace] p.ProfileProducer - Pushing to kinesis:
-    user-profile.core_1    | {"headers":{"messageId":"5537f031-9632-11e7-bba5-c9058229306d","source":"core-user-profile","action":"Create"},"payload":{"classicLocale":"en-US","classicCountry":"US","username":"#X#X#","referralId":"SOMEIDCODE2","promotionId":"OPRAH","title":"Mr.","firstName":"#X#X#","middleInitial":"#X#X#","lastName":"#X#X#","birthDate":"#X#X#","gender":"F","height":152,"address":{"home":{"streetAddress":"#X#X#","extendedAddress":"#X#X#","postOfficeBox":"#X#X#","locality":"#X#X#","region":"#X#X#","postalCode":"#X#X#","country":"#X#X#","latitude":0,"longitude":0},"shipping":{"streetAddress":"#X#X#","extendedAddress":"#X#X#","postOfficeBox":"#X#X#","locality":"#X#X#","region":"#X#X#","postalCode":"#X#X#","country":"#X#X#","latitude":0,"longitude":0}},"phone":{"home":"#X#X#","cell":"#X#X#"},"email":{"personal":"#X#X#"},"identity":{"classic":248698,"facebook":8597},"acquisitionId":"#X#X#","communicationPreferences":["mail"],"preferredHeightWeightUnits":"metric","newletterOption":false,"referrerSite":"yahoo","sendRegisterationEmail":true,"zipWork":"#X#X#","avatarUrl":"#X#X#","fullProfileUrl":"172.16.1.10/profile/bf8923e6-0748-4dae-8819-83ccac3dc0f9?cachingTimestamp=1505052857527","userId":"bf8923e6-0748-4dae-8819-83ccac3dc0f9"}}
-    user-profile.core_1    | 2017-09-10 14:14:19,106 [debug] access - http result 200 on POST /profile?skipES=true&overrideRegistrationDate= with headers: Map()
-    user-profile.core_1    | 2017-09-10 14:14:19,390 [trace] c.w.c.e.p.KinesisProducerActor - Succesfully sent message to kinesis: ProducerEvent(bf8923e6-0748-4dae-8819-83ccac3dc0f9,java.nio.HeapByteBuffer[pos=1229 lim=1229 cap=1229])
-    user-profile.core_1    | 2017-09-10 14:14:19,428 [trace] p.ProfileProducer - Successfully sent ProducerEvent(55e06532-9632-11e7-bba5-a7bfacd119ef)
-    user-profile.core_1    | 2017-09-10 14:14:19,530 [trace] c.d.d.c.Connection - Connection[cassandra/172.16.1.2:9042-2, inFlight=1, closed=false], stream 576, writing request QUERY INSERT INTO core_user_profile_service.registration_changes (date, hour, timestamp, userId, classicCountry, classicLocale, birthDate, gender, height, preferredHeightWeightUnits, registrationDate) VALUES(20170910, 14, 1505052858143, bf8923e6-0748-4dae-8819-83ccac3dc0f9, 'US', 'en-US', '1970-10-10', 'F', 152, 'metric', 1505052846058) USING TTL 7776000;([cl=LOCAL_QUORUM, positionalVals=[], namedVals={}, skip=false, psize=5000, state=null, serialCl=SERIAL])

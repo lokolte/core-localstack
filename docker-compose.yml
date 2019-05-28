@@ -1,21 +1,18 @@
-version: '2.1'
+version: "2.3"
 
 services:
-
-  ######## NGINX ########
-
-  core-localstack:
+  localstack:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: core-localstack-asdf
-    ports:
-      - "4568-4584:4568-4584"
-      - "8055:8080"
     environment:
-      - SERVICES=s3
-      - LOCALSTACK_DATA_DIR=/var/lib/localstack/data
-      - LOCALSTACK_DEFAULT_REGION=us-east-1
-      - LOCALSTACK_HOSTNAME=core-localstack-asdf
+      - "SERVICES=${LSTACK_SERVICES:-s3}"
+      - "DEFAULT_REGION=${AWS_REGION:-us-east-1}"
+      - "HOSTNAME=${LSTACK_HOSTNAME:-localhost}"
+      #- "USE_SSL=true"
+      #- "DATA_DIR=${LOCALSTACK_DATA_DIR:-/tmp/localstack/data}" # uncomment if you want to persist data between runs
     volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock'
+      - ./templates:/opt/bootstrap/templates
+    ports:
+      - "4567-4582:4567-4582"
+      - "8080:8080"
