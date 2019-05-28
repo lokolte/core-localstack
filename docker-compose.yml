@@ -1,7 +1,7 @@
 version: "2.3"
 
 services:
-  localstack:
+  core-localstack:
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,8 +11,6 @@ services:
       - "HOSTNAME=${LSTACK_HOSTNAME:-localhost}"
       #- "USE_SSL=true"
       #- "DATA_DIR=${LOCALSTACK_DATA_DIR:-/tmp/localstack/data}" # uncomment if you want to persist data between runs
-    volumes:
-      - ./templates:/opt/bootstrap/templates
     ports:
       - "4567-4582:4567-4582"
       - "8080:8080"

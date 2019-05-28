@@ -26,7 +26,7 @@ RUN chmod +x ${DATADIR}/initialize.sh
 
 COPY resources/local_data/test_data.part ${DATADIR}/data/test_data.part
 
-RUN pip install awscli-local
+VOLUME $DATADIR
 
 # We run the init script as a health check
 # That way the container won't be healthy until it's completed successfully
