@@ -2,11 +2,11 @@
 
 #echo $DATADIR
 
-echo "127.0.0.1     localstack-server" >> /etc/hosts
+#echo "127.0.0.1     localstack-server" >> /etc/hosts
 
-echo $LOCALSTACK_SERVICES
+#echo $LOCALSTACK_SERVICES
 
-cat /etc/hosts
+#cat /etc/hosts
 
 #aws configure
 #fill key and Secret with foo, location us-east-1, last enter return key to avoid fill last one

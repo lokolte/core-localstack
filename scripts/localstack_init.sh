@@ -2,16 +2,16 @@
 
 echo -e "Starting localstack server for $LOCALSTACK_SERVICES"
 
-npm -version
+#npm -version
 
-node -version
+#node -version
 
-echo $ES_HOME
+#echo $ES_HOME
 
-ls -la /var/lib/localstack/elasticsearch-${ELASTIC_VERSION}
+#ls -la /var/lib/localstack/elasticsearch-${ELASTIC_VERSION}
 
-ls /var/lib/localstack/elasticsearch-${ELASTIC_VERSION}/bin/
+#ls /var/lib/localstack/elasticsearch-${ELASTIC_VERSION}/bin/
 
-echo "Fin debug versions"
+#echo "Fin debug versions"
 
 localstack start && ./init.sh

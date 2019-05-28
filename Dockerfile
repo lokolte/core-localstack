@@ -28,7 +28,7 @@ ENV LOCALSTACK_HOSTNAME core-localstack
 
 # Dependencies for localstack
 RUN apk --no-cache update && \
-
+    set -ex && apk --no-cache add sudo && \
     apk --no-cache add bash && \
     apk --no-cache add openjdk8-jre && \
     apk --no-cache add python3 python3-dev libstdc++ openssl-dev linux-headers libffi-dev clang make g++ gcc curl groff less && \
