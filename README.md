@@ -82,7 +82,7 @@ For s3 either using `awscli`.
 ```bash
 aws --endpoint-url=http://localhost:4572 s3 ls s3://demo-bucket
 
-2019-05-28 19:04:54      52360 test_data.part
+2019-05-28 19:04:54      52360 s3_test_data.part
 ```
 
 # Example of kinesis stream template

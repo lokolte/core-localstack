@@ -2,6 +2,14 @@ FROM localstack/localstack:latest
 
 ENV DATADIR /var/lib/core-localstack
 
+ENV LSTACK_SERVICES s3
+ENV LSTACK_HOST localhost
+ENV LSTACK_HOSTNAME core-localstack
+ENV LSTACK_REGION us-east-1
+
+ENV LSTACK_PORT 4572
+ENV LSTACK_BUCKET new-bucket-s3
+
 RUN mkdir $DATADIR
 RUN mkdir $DATADIR/scripts
 RUN mkdir $DATADIR/data
@@ -11,7 +19,7 @@ COPY resources $DATADIR
 RUN chmod +x ${DATADIR}/scripts/init.sh
 RUN chmod +x ${DATADIR}/initialize.sh
 
-COPY resources/local_data/test_data.part ${DATADIR}/data/test_data.part
+COPY resources/local_data/s3_test_data.part ${DATADIR}/data/s3_test_data.part
 
 VOLUME $DATADIR
 
