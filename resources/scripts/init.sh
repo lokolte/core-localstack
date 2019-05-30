@@ -13,7 +13,7 @@ for service_th in "${ADDR[@]}"; do
 
         #To copy files into s3 localstack
         echo -e "Copying s3_test_data content to $DATADIR/data"
-        aws --endpoint-url=http://${LSTACK_HOST}:${LSTACK_PORT} s3 cp ${DATADIR}/data/s3_test_data.part s3://${LSTACK_BUCKET}
+        aws --endpoint-url=http://${LSTACK_HOST}:${LSTACK_PORT} s3 cp ${DATADIR}/resources/local_data/s3_test_data.json s3://${LSTACK_BUCKET}
 
         #To list the files in s3
         echo -e "Lising content of $LSTACK_BUCKET"

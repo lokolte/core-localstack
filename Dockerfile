@@ -25,8 +25,6 @@ COPY resources $DATADIR
 RUN chmod +x ${DATADIR}/scripts/init.sh
 RUN chmod +x ${DATADIR}/initialize.sh
 
-COPY resources/local_data/s3_test_data.part ${DATADIR}/data/s3_test_data.part
-
 VOLUME $DATADIR
 
 # We run the init script as a health check
