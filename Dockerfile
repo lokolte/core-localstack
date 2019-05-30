@@ -2,6 +2,8 @@ FROM localstack/localstack:latest
 
 ENV DATADIR /var/lib/core-localstack
 
+EXPOSE 8080 4567-4582
+
 # Variables to be used in init.sh
 ENV LSTACK_SERVICES s3
 ENV LSTACK_HOST localhost
@@ -30,5 +32,4 @@ VOLUME $DATADIR
 # We run the init script as a health check
 # That way the container won't be healthy until it's completed successfully
 # Once the init completes we wipe it to prevent it continiously running
-HEALTHCHECK --start-period=10s --interval=1s --timeout=3s --retries=30\
-  CMD ${DATADIR}/initialize.sh
+HEALTHCHECK --start-period=10s --interval=1s --timeout=3s --retries=30 CMD ${DATADIR}/initialize.sh
