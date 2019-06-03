@@ -2,7 +2,7 @@ FROM localstack/localstack:latest
 
 ENV DATADIR /var/lib/core-localstack
 
-EXPOSE 8080 4567-4582
+EXPOSE 8080 4567-4582 80
 
 # Variables to be used in init.sh
 ENV LSTACK_SERVICES s3
