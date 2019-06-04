@@ -7,7 +7,7 @@ EXPOSE 8080 4567-4582 80
 # Variables to be used in init.sh
 ENV LSTACK_SERVICES s3
 ENV LSTACK_HOST localhost
-ENV LSTACK_PORT 4572
+ENV LSTACK_PORT 80
 ENV LSTACK_BUCKET new-bucket-s3
 
 # Credentials for awscli
