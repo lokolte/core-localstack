@@ -4,14 +4,6 @@ ENV DATADIR /var/lib/core-localstack
 
 EXPOSE 8080 4567-4582 80
 
-# Variables to be used in init.sh
-ENV LSTACK_SERVICES s3
-ENV LSTACK_HOST localhost
-ENV LSTACK_HOSTNAME core-localstack
-ENV LSTACK_REGION us-east-1
-ENV LSTACK_PORT 4572
-ENV LSTACK_BUCKET new-bucket-s3
-
 # Credentials for awscli
 ENV AWS_ACCESS_KEY_ID foo
 ENV AWS_SECRET_ACCESS_KEY foo

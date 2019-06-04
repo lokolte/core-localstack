@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+echo -e "Configuring Host $LSTACK_HOST and port $LSTACK_PORT" >> /tmp/localstack_infra.log
+echo -e "127.0.0.1     $LSTACK_HOST" >> /etc/hosts
+
 IFS=','
 read -ra ADDR <<< "$LSTACK_SERVICES"
 for service_th in "${ADDR[@]}"; do
