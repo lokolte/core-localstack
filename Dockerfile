@@ -1,10 +1,9 @@
 FROM localstack/localstack:0.9.4
 
 ENV DATADIR /var/lib/core-localstack
-
 ENV AWS_CONFIG /root/.aws
 
-EXPOSE 8080 8055 4568 4569 4572 80
+EXPOSE 8080 4567-4582 80
 
 RUN mkdir $DATADIR
 RUN mkdir $DATADIR/scripts
