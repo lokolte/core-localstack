@@ -1,0 +1,5 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation Int Test Template
+Resources:
+  KinesisStream1:
+    Type: AWS::Kinesis::Stream

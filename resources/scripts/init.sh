@@ -9,6 +9,7 @@ read -ra ADDR <<< "$LSTACK_SERVICES"
 for service_th in "${ADDR[@]}"; do
     if [ $service_th == 's3' ]
     then
+        awslocal cloudformation create-stack --template-body file://${DATADIR}/templates/s3template.yml --stack-name teststack >> /tmp/localstack_infra.log
         #To create a bucket
         echo -e "Creating bucket $LSTACK_BUCKET for server $LSTACK_HOST in port $LSTACK_PORT" >> /tmp/localstack_infra.log
         aws --endpoint-url=http://${LSTACK_HOST}:${LSTACK_PORT} s3 mb s3://${LSTACK_BUCKET} >> /tmp/localstack_infra.log
@@ -27,6 +28,7 @@ for service_th in "${ADDR[@]}"; do
         aws --endpoint-url=http://${LSTACK_HOST}:${LSTACK_PORT} s3 ls s3://${LSTACK_BUCKET} >> /tmp/localstack_infra.log
     elif [ $service_th == 'kinesis' ]
     then
+        awslocal cloudformation create-stack --template-body file://${DATADIR}/templates/kinesistemplate.yml --stack-name teststack >> /tmp/localstack_infra.log
         # Select http or https
         HTTP_PROTOCOL="http"
         SSL_FLAG=""
@@ -48,8 +50,10 @@ for service_th in "${ADDR[@]}"; do
             echo -e "Creating on ${HTTP_PROTOCOL}://${LSTACK_HOST}:${LSTACK_KINESIS_PORT} stream ${STREAM_NAME}" >> /tmp/localstack_infra.log
             aws kinesis ${SSL_FLAG} create-stream --endpoint-url=${HTTP_PROTOCOL}://${LSTACK_HOST}:${LSTACK_KINESIS_PORT} --stream-name ${STREAM_NAME} --shard-count 1 >> /tmp/localstack_infra.log
         fi
+    elif [ $service_th == 'dynamodb' ]
+    then
+        awslocal cloudformation create-stack --template-body file://${DATADIR}/templates/dinamodbtemplate.yml --stack-name teststack >> /tmp/localstack_infra.log
     fi
-
 
 done
 

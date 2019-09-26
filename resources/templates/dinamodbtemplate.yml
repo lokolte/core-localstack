@@ -1,0 +1,5 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation Int Test Template
+Resources:
+  DinamoDBTable:
+    Type: AWS::DynamoDB::Table
