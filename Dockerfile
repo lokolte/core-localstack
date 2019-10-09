@@ -1,14 +1,17 @@
-FROM localstack/localstack:latest
+FROM localstack/localstack:0.9.4
 
 ENV DATADIR /var/lib/core-localstack
+ENV AWS_CONFIG /root/.aws
 
 EXPOSE 8080 4567-4582 80
 
 RUN mkdir $DATADIR
 RUN mkdir $DATADIR/scripts
 RUN mkdir $DATADIR/data
+RUN mkdir $AWS_CONFIG
 
 COPY resources $DATADIR
+COPY resources/config $AWS_CONFIG
 
 RUN chmod +x ${DATADIR}/scripts/init.sh
 RUN chmod +x ${DATADIR}/initialize.sh

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation Int Test Template
 Resources:
-  S3Bucket:
-    Type: AWS::S3::Bucket
+  KinesisStream1:
+    Type: AWS::Kinesis::Stream
