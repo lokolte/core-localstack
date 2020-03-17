@@ -20,7 +20,7 @@ for service_th in "${ADDR[@]}"; do
         aws --endpoint-url=http://${LSTACK_HOST}:${LSTACK_PORT} s3api put-object-acl --bucket ${LSTACK_BUCKET} --key s3_test_data_development.json --grant-full-control uri=http://acs.amazonaws.com/groups/global/AllUsers >> /tmp/localstack_infra.log
 
         #To copy files into s3 localstack
-        echo -e "Copying s3_test_data_development content to $DATADIR/data" >> /tmp/localstack_infra.log
+        echo -e "Copying s3_test_data_development content to $DATADIR/local_data" >> /tmp/localstack_infra.log
         aws --endpoint-url=http://${LSTACK_HOST}:${LSTACK_PORT} s3 cp ${DATADIR}/local_data/s3_test_data_development.json s3://${LSTACK_BUCKET}/ >> /tmp/localstack_infra.log
 
         #To list the files in s3
