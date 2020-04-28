@@ -38,15 +38,12 @@ for service_th in "${SERVICES_SPLITED[@]}"; do
             SSL_FLAG="--no-verify-ssl"
         fi
         echo -e "Configurint PROTOCOL $HTTP_PROTOCOL and SSL FLAG $SSL_FLAG" >> /tmp/localstack_infra.log
-        # To create kinesis streams
-
+        read -ra STREAMS_NAMES_TOKENS <<< "$STREAMS_NAMES"
+        STREAMS_NAMES_TOKENS_FORMATED=()
         if [ -z "$NUMBER_STREAMS" ]
         then
-            echo -e "Creating on ${HTTP_PROTOCOL}://${LSTACK_HOST}:${LSTACK_KINESIS_PORT} stream ${STREAM_NAME}" >> /tmp/localstack_infra.log
-            aws kinesis ${SSL_FLAG} create-stream --endpoint-url=${HTTP_PROTOCOL}://${LSTACK_HOST}:${LSTACK_KINESIS_PORT} --stream-name ${STREAM_NAME} --shard-count 1 >> /tmp/localstack_infra.log
+            STREAMS_NAMES_TOKENS_FORMATED=("${STREAMS_NAMES_TOKENS[@]}")
         else
-            IFS=','
-            read -ra STREAMS_NAMES_TOKENS <<< "$STREAMS_NAMES"
             read -ra NUMBER_STREAMS_TOKENS <<< "$NUMBER_STREAMS"
             index=0;
             for stream_token_number_th in "${NUMBER_STREAMS_TOKENS[@]}"; do
@@ -56,12 +53,15 @@ for service_th in "${SERVICES_SPLITED[@]}"; do
                     then
                         STREAM_NAME_VALUE=${STREAM_NAME_VALUE/@/$stream_th}
                     fi
-                    echo -e "Creating on ${HTTP_PROTOCOL}://${LSTACK_HOST}:${LSTACK_KINESIS_PORT} stream ${ENVIRONMENT_NAME}.${STREAM_NAME_VALUE}" >> /tmp/localstack_infra.log
-                    aws kinesis ${SSL_FLAG} create-stream --endpoint-url=${HTTP_PROTOCOL}://${LSTACK_HOST}:${LSTACK_KINESIS_PORT} --stream-name "${ENVIRONMENT_NAME}.${STREAM_NAME_VALUE}" --shard-count 1  >> /tmp/localstack_infra.log
+                    STREAMS_NAMES_TOKENS_FORMATED+=($STREAM_NAME_VALUE)
                 done
                 $((++index))
             done
         fi
+        for stream_name_formated in "${STREAMS_NAMES_TOKENS_FORMATED[@]}"; do
+            echo -e "Creating on ${HTTP_PROTOCOL}://${LSTACK_HOST}:${LSTACK_KINESIS_PORT} stream ${ENVIRONMENT_NAME}.${stream_name_formated}" >> /tmp/localstack_infra.log
+            aws kinesis ${SSL_FLAG} create-stream --endpoint-url=${HTTP_PROTOCOL}://${LSTACK_HOST}:${LSTACK_KINESIS_PORT} --stream-name "${ENVIRONMENT_NAME}.${stream_name_formated}" --shard-count 1  >> /tmp/localstack_infra.log
+        done
     elif [ $service_th == 'dynamodb' ]
     then
         awslocal cloudformation create-stack --template-body file://${DATADIR}/templates/dinamodbtemplate.yml --stack-name teststack >> /tmp/localstack_infra.log

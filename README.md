@@ -110,15 +110,20 @@ For configurations inside `docker-compose.yml` you must configure the kind of st
  - **Multiple stream names with multiple instances:**
  ```yaml
       ENVIRONMENT_NAME: local
-      NUMBER_STREAMS: "2,1"
-      STREAMS_NAMES: "first.@.second,first.second"
+      NUMBER_STREAMS: 2,1
+      STREAMS_NAMES: first.@.second,first.second
 ```
 **Note:** The simbol `@` means that this value is going to be increment, up to the respective value in `NUMBER_STREAMS` (if this env variable is 1, no `@` simbol is needed).
 
  - **Simple unique stream name:**
  ```yaml
       ENVIRONMENT_NAME: local
-      STREAM_NAME: "first.second"
+      STREAM_NAMES: first.second
+ ```
+ - **Multiple streams names with unique names**
+ ```yaml
+      ENVIRONMENT_NAME: local
+      STREAMS_NAMES: first.1.second,first.2.second,first.second
  ```
  
  # Suported services

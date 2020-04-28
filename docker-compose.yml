@@ -24,12 +24,17 @@ services:
       LOCALSTACK_HOSTNAME: localhost
       HOSTNAME_EXTERNAL: localhost
       LOCALSTACK_HOSTNAME_EXTERNAL: localhost
-      # To name streams
+      # Streams names with multiple instances
       ENVIRONMENT_NAME: local
-#      NUMBER_STREAMS: ""
       NUMBER_STREAMS: 2,1
       STREAMS_NAMES: core-profile-service.@.ProfileEvent,foundations.anonymization
-      STREAM_NAME: "first.second"
+#       Streams names unique for multiple instances
+#      ENVIRONMENT_NAME: local
+#      STREAMS_NAMES: core-profile-service.1.ProfileEvent,core-profile-service.2.ProfileEvent,foundations.anonymization
+#       Streams names unique
+#      ENVIRONMENT_NAME: local
+#      STREAMS_NAMES: core-profile-service.1.ProfileEvent
+
     ports:
       - "4568:4568"
       - "4569:4569"
