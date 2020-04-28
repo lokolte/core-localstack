@@ -103,3 +103,38 @@ Resources:
       Name: int-test-stream-2
       ShardCount: 1
 ```
+
+# Details of configuration .yml file for kinesis
+For configurations inside `docker-compose.yml` you must configure the kind of streams names, like:
+
+ - **Multiple stream names with multiple instances:**
+ ```yaml
+      ENVIRONMENT_NAME: local
+      NUMBER_STREAMS: "2,1"
+      STREAMS_NAMES: "first.@.second,first.second"
+```
+**Note:** The simbol `@` means that this value is going to be increment, up to the respective value in `NUMBER_STREAMS` (if this env variable is 1, no `@` simbol is needed).
+
+ - **Simple unique stream name:**
+ ```yaml
+      ENVIRONMENT_NAME: local
+      STREAM_NAME: "first.second"
+ ```
+ 
+ # Suported services
+ Now just those services are suported:
+ - `S3` variables needed for this service:
+ ```yaml
+      LSTACK_SERVICES: s3
+      LSTACK_HOST: localhost
+      LSTACK_PORT: 80
+      LSTACK_BUCKET: development
+ ```
+ **Note:** Some libraries doesn't support custom ports, in those cases the port `80` is needed.
+ - `Kinesis` variables needed for this service:
+ ```yaml
+     LSTACK_SERVICES: dynamodb,kinesis
+     LSTACK_HOST: localhost
+     LSTACK_KINESIS_PORT: 4568
+     LSTACK_DINAMODB_PORT: 4569
+```
