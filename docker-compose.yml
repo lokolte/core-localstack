@@ -1,0 +1,57 @@
+version: "2.3"
+
+services:
+  core-localstack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # To configure image
+      LSTACK_SERVICES: dynamodb,kinesis
+      LSTACK_HOST: localhost
+      AWS_ACCESS_KEY_ID: foo
+      AWS_SECRET_ACCESS_KEY: foo
+      LSTACK_KINESIS_PORT: 4568
+      LSTACK_DINAMODB_PORT: 4569
+      # Kinesis configs
+      SERVICES: dynamodb:4569,kinesis:4568
+      DEBUG: 1
+      #DATA_DIR: /tmp/localstack/data
+      DEFAULT_REGION: us-east-1
+      AWS_REGION: us-east-1
+      USE_SSL: 1
+      HOSTNAME: localhost
+      LOCALSTACK_HOSTNAME: localhost
+      HOSTNAME_EXTERNAL: localhost
+      LOCALSTACK_HOSTNAME_EXTERNAL: localhost
+      # Streams names with multiple instances
+      ENVIRONMENT_NAME: local
+      NUMBER_STREAMS: 2,1
+      STREAMS_NAMES: core-profile-service.@.ProfileEvent,foundations.anonymization
+#       Streams names unique for multiple instances
+#      ENVIRONMENT_NAME: local
+#      STREAMS_NAMES: core-profile-service.1.ProfileEvent,core-profile-service.2.ProfileEvent,foundations.anonymization
+#       Streams names unique
+#      ENVIRONMENT_NAME: local
+#      STREAMS_NAMES: core-profile-service.1.ProfileEvent
+
+    ports:
+      - "4568:4568"
+      - "4569:4569"
+      - "8080:8080"
+
+# Conf for s3 tests
+#    environment:
+#      LSTACK_SERVICES: s3
+#      LSTACK_HOST: localhost
+#      LSTACK_PORT: 80
+#      LSTACK_BUCKET: development
+#      AWS_ACCESS_KEY_ID: foo
+#      AWS_SECRET_ACCESS_KEY: foo
+#      SERVICES: "s3:80"
+#      DEFAULT_REGION: us-east-1
+#      HOSTNAME: localhost
+#    ports:
+#        - "80:80"
+#        - "4567-4582:4567-4582"
+#        - "8080:8080"
